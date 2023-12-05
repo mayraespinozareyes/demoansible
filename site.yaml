@@ -1,0 +1,9 @@
+# create cluster k8s in ibmcloud
+- name: Test
+  hosts: localhost
+  collections:
+    - ibm.cloudcollection
+  tasks:
+    - name: Print "hello world"
+      ansible.builtin.debug:
+        msg: hello world
