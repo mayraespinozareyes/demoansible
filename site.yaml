@@ -1,10 +1,44 @@
 ---
-# create cluster k8s in ibmcloud
 - name: Test
-  hosts: localhost
+  vars_files:
+    - /vars/external_vars.yml
   collections:
     - ibm.cloudcollection
   tasks:
+    - name: Create container vpc cluster
+      ibm.cloudcollection.ibm_container_vpc_cluster:
+        name: "{{ cluster_name }}"
+        resource_group: "{{ resource_group }}"
+        location: "{{ location }}"
+        platform: linux
+        cluster_type: single
+        node_type: worker
+        worker_quantity: 2
+        worker_node_type: worker
+        enable_auto_scaling: true
+        max_auto_scaling_instances: 2
+        min_instance_lifetime: 720
+        termination_protected: false
+        tags:
+          - key: testkey
+            value: testvalue
+        automated_patching:
+          maintenance_window:
+            name: "{{ window_name }}"
+          tasks:
+            - type: OS_PATCHING
+              pre_task_cmd: ls
+              post_task_cmd: ls -a
+          start_time: 43200
+          duration: 1 day
+          time_zone: UTC
+        security_group_ids:
+          - "{{ sg.resource_id }}"
+        ssh_key: testsshkey
+        root_volume_size: 60
+        root_volume_type: gp2
+        root_volume_iops: 500
+        commercial_type: cloud
     - name: Print "hello world"
       ansible.builtin.debug:
         msg: hello world
