@@ -15,3 +15,7 @@
         zones:
           - subnet_id: "{{ subnet_id }}"
             name: "{{ zone_name }}"
+        entitlement: "{{ entitlement }}"
+        kube_version: "{{ kube_version }}"
+        worker_count: "{{ worker_count }}"
+        cos_instance_crn: "{{ cos_instance_crn }}"
