@@ -6,6 +6,10 @@
   collections:
     - ibm.cloudcollection
   tasks:
+    - name: Create resource group
+      ibm.cloudcollection.ibm_resource_group:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        name: "{{ resource_group_name }}"
     - name: Create container vpc cluster
       ibm.cloudcollection.ibm_container_vpc_cluster:
         name: "{{ cluster_name }}"
@@ -19,3 +23,23 @@
         kube_version: "{{ kube_version }}"
         worker_count: "{{ worker_count }}"
         cos_instance_crn: "{{ cos_instance_crn }}"
+    - name: Create cos bucket
+      ibm.cloudcollection.ibm_cos_bucket:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        bucket_name: "{{ bucket_name }}"
+    - name: Create VPC
+      ibm.cloudcollection.ibm_is_vpc:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        name: "{{ vpc_name }}"
+        resource_group: "{{ resource_group_name }}"
+    - name: Create SubNet
+      ibm.cloudcollection.ibm_is_subnet:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        name: "{{ subnet_name }}"
+        resource_group: "{{ resource_group_name }}"
+    - name: Create Storage
+      ibm.cloudcollection.ibm_is_volume:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        zone: "{{ zone_name }}"
+        name: "{{ volumen_name }}"
+        resource_group: "{{ resource_group_name }}"
