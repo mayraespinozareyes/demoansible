@@ -1,4 +1,0 @@
-cluster_name: somevalue
-resource_group: test
-location: test
-window_name: test
