@@ -140,3 +140,15 @@ source_snapshot,
 state, 
 tags, 
 zone
+
+
+Attach
+
+Supported parameters include: 
+cluster, 
+ibmcloud_api_key, 
+id, 
+resource_group_id, 
+state, 
+volume, 
+worker

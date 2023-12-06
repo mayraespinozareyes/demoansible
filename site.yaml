@@ -37,9 +37,20 @@
         ibmcloud_api_key: "{{ ibmcloud_api_key }}"
         name: "{{ subnet_name }}"
         resource_group: "{{ resource_group_name }}"
-    - name: Create Storage
+    - name: Create worker pool
+      ibm.cloudcollection.ibm_container_vpc_worker_pool:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        worker_pool_name: ""
+    - name: Create Workers ODF
+      ibm.cloudcollection.ibm_container_vpc_worker:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+# Voler dinamico
+    - name: Create volumen for ODF
       ibm.cloudcollection.ibm_is_volume:
         ibmcloud_api_key: "{{ ibmcloud_api_key }}"
         zone: "{{ zone_name }}"
         name: "{{ volumen_name }}"
         resource_group: "{{ resource_group_name }}"
+    - name: Attach Storage
+      ibm.cloudcollection.ibm_container_storage_attachment:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
