@@ -10,47 +10,62 @@
       ibm.cloudcollection.ibm_resource_group:
         ibmcloud_api_key: "{{ ibmcloud_api_key }}"
         name: "{{ resource_group_name }}"
-    - name: Create container vpc cluster
-      ibm.cloudcollection.ibm_container_vpc_cluster:
-        name: "{{ cluster_name }}"
-        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
-        flavor: "{{ flavor }}"
-        vpc_id: "{{ vpc_id }}"
-        zones:
-          - subnet_id: "{{ subnet_id }}"
-            name: "{{ zone_name }}"
-        entitlement: "{{ entitlement }}"
-        kube_version: "{{ kube_version }}"
-        worker_count: "{{ worker_count }}"
-        cos_instance_crn: "{{ cos_instance_crn }}"
+      register: result_rg
     - name: Create cos bucket
-      ibm.cloudcollection.ibm_cos_bucket:
+      ibm.cloudcollection.ibm_resource_instance:
         ibmcloud_api_key: "{{ ibmcloud_api_key }}"
-        bucket_name: "{{ bucket_name }}"
-    - name: Create VPC
-      ibm.cloudcollection.ibm_is_vpc:
-        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
-        name: "{{ vpc_name }}"
-        resource_group: "{{ resource_group_name }}"
-    - name: Create SubNet
-      ibm.cloudcollection.ibm_is_subnet:
-        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
-        name: "{{ subnet_name }}"
-        resource_group: "{{ resource_group_name }}"
-    - name: Create worker pool
-      ibm.cloudcollection.ibm_container_vpc_worker_pool:
-        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
-        worker_pool_name: ""
-    - name: Create Workers ODF
-      ibm.cloudcollection.ibm_container_vpc_worker:
-        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
-# Voler dinamico
-    - name: Create volumen for ODF
-      ibm.cloudcollection.ibm_is_volume:
-        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
-        zone: "{{ zone_name }}"
-        name: "{{ volumen_name }}"
-        resource_group: "{{ resource_group_name }}"
-    - name: Attach Storage
-      ibm.cloudcollection.ibm_container_storage_attachment:
-        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        name: "{{ bucket_name }}"
+        service: "{{ service }}"
+        location: "{{ location }}"
+        plan: "{{ plan }}"
+      register: result_cos
+    - name: Print Test
+      ansible.builtin.debug:
+        msg: "{{ result_cos }}"
+#    - name: Create VPC
+#      ibm.cloudcollection.ibm_is_vpc:
+#        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+#        name: "{{ vpc_name }}"
+#        resource_group: "{{ resource_group_name }}"
+#      when: result_rg.rc == "0"
+#      register: result_vpc
+#    - name: Create SubNet
+#      ibm.cloudcollection.ibm_is_subnet:
+#        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+#        name: "{{ subnet_name }}"
+#        resource_group: "{{ resource_group_name }}"
+#      when: result_rg | success
+#      register: result_subnet
+#    - name: Create container vpc cluster
+#      ibm.cloudcollection.ibm_container_vpc_cluster:
+#        name: "{{ cluster_name }}"
+#        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+#        flavor: "{{ flavor }}"
+#        vpc_id: "{{ vpc_id }}"
+#        zones:
+#          - subnet_id: "{{ subnet_id }}"
+#            name: "{{ zone_name }}"
+#        entitlement: "{{ entitlement }}"
+#        kube_version: "{{ kube_version }}"
+#        worker_count: "{{ worker_count }}"
+#        cos_instance_crn: "{{ cos_instance_crn }}"
+#        resource_group_id: "{{ resource_group_name }}"
+#      register: result_roks
+
+#    - name: Create worker pool
+#      ibm.cloudcollection.ibm_container_vpc_worker_pool:
+#        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+#        worker_pool_name: ""
+#    - name: Create Workers ODF
+#      ibm.cloudcollection.ibm_container_vpc_worker:
+#        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+## Voler dinamico
+#    - name: Create volumen for ODF
+#      ibm.cloudcollection.ibm_is_volume:
+#        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+#        zone: "{{ zone_name }}"
+#        name: "{{ volumen_name }}"
+#        resource_group: "{{ resource_group_name }}"
+#    - name: Attach Storage
+#      ibm.cloudcollection.ibm_container_storage_attachment:
+#        ibmcloud_api_key: "{{ ibmcloud_api_key }}"

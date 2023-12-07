@@ -1,5 +1,6 @@
 # demoansible
 
+IC_API_KEY=""
 
 ansible
 ansible-lint
@@ -48,32 +49,21 @@ COS
 ---------------------------
 
 Supported parameters include: 
-abort_incomplete_multipart_upload_days, 
-activity_tracking, 
-allowed_ip, 
-archive_rule, 
-bucket_name, 
-cross_region_location, 
-endpoint_type, 
-expire_rule, 
-force_delete, 
-hard_quota, 
-iaas_classic_api_key, 
+iaas_classic_api_key,
 iaas_classic_username, 
-ibmcloud_api_key, 
+*ibmcloud_api_key, 
 id, 
-key_protect, 
-metrics_monitoring, 
-noncurrent_version_expiration, 
-object_versioning, 
+*location, 
+*name, 
+parameters, 
+parameters_json, 
+*plan, 
 region, 
-region_location, 
-resource_instance_id, 
-retention_rule, 
-satellite_location_id, 
-single_site_location, 
-state, 
-storage_class
+resource_group_id, 
+service, 
+service_endpoints, 
+state, 
+tags
 
 VPC
 --------------------------
@@ -116,6 +106,7 @@ zone
 
 Resource Group
 -------------------------
+Supported parameters include: 
 ibmcloud_api_key
 
 
@@ -143,6 +134,7 @@ zone
 
 
 Attach
+----------------------------
 
 Supported parameters include: 
 cluster, 
