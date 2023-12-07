@@ -44,7 +44,7 @@
     - name: Create Workers ODF
       ibm.cloudcollection.ibm_container_vpc_worker:
         ibmcloud_api_key: "{{ ibmcloud_api_key }}"
-# Voler dinamico
+    # Voler dinamico
     - name: Create volumen for ODF
       ibm.cloudcollection.ibm_is_volume:
         ibmcloud_api_key: "{{ ibmcloud_api_key }}"
