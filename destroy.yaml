@@ -1,0 +1,62 @@
+---
+- name: Uninstall_CP4I
+  hosts: localhost
+  vars_files:
+    - vars/external_vars.yml
+  tasks:
+    - name: Check resource group exists
+      ibm.cloudcollection.ibm_resource_group_info:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        name: "{{ resource_group_name }}"
+      register: rg_info
+    - name: Check resource instance exists
+      ibm.cloudcollection.ibm_resource_instance_info:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        name: "{{ bucket_name }}"
+        service: "{{ service }}"
+        resource_group_id: "{{ rg_info.resource.id }}"
+      register: resource_instance_output
+    - name: Destroy cos bucket
+      ibm.cloudcollection.ibm_resource_instance:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        id: "{{ resource_instance_output.resource.id }}"
+        state: absent
+      register: destroy_ri_output
+    - name: Get info SubNet
+      ibm.cloudcollection.ibm_is_subnet_info:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        name: "{{ subnet_name }}"
+        region: "{{ region }}"
+      register: subnet_info
+    - name: Destroy SubNet
+      ibm.cloudcollection.ibm_is_subnet:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        id: "{{ subnet_info.resource.id }}"
+        region: "{{ region }}"
+        state: absent
+    - name: Get info public gateway
+      ibm.cloudcollection.ibm_is_public_gateway_info:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        name: "{{ public_gateway_name }}"
+        region: "{{ region }}"
+        resource_group: "{{ rg_info.resource.id }}"
+      register: public_gateway_info
+    - name: Destroy public gateway
+      ibm.cloudcollection.ibm_is_public_gateway:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        id: "{{ public_gateway_info.resource.id }}"
+        region: "{{ region }}"
+        resource_group: "{{ rg_info.resource.id }}"
+        state: absent
+    - name: Get info VPC
+      ibm.cloudcollection.ibm_is_vpc_info:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        name: "{{ vpc_name }}"
+        region: "{{ region }}"
+      register: vpc_info
+    - name: Destroy VPC
+      ibm.cloudcollection.ibm_is_vpc:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        id: "{{ vpc_info.resource.id }}"
+        region: "{{ region }}"
+        state: absent

@@ -1,10 +1,9 @@
 # demoansible
 
-IC_API_KEY=""
-
 ansible
 ansible-lint
 ansible-galaxy collection install ibm.cloudcollection
+*ansible-galaxy collection install ansible.utils
 
 
 ROKS
@@ -53,14 +52,14 @@ iaas_classic_api_key,
 iaas_classic_username, 
 *ibmcloud_api_key, 
 id, 
-*location, 
-*name, 
+*location (Required for new resource), 
+*name (Required for new resource), 
 parameters, 
 parameters_json, 
-*plan, 
+*plan (Required for new resource), 
 region, 
 resource_group_id, 
-service, 
+service (Required for new resource), 
 service_endpoints, 
 state, 
 tags
@@ -88,9 +87,11 @@ SubNet
 ----------------------------
 
 Supported parameters include: 
-access_tags, generation, 
+access_tags, 
+generation, 
 ibmcloud_api_key, 
-id, ip_version, 
+id, 
+ip_version, 
 ipv4_cidr_block, 
 name, 
 network_acl, 
@@ -101,8 +102,8 @@ routing_table,
 state, 
 tags, 
 total_ipv4_address_count, 
-vpc, 
-zone
+*vpc, 
+*zone
 
 Resource Group
 -------------------------
@@ -144,3 +145,28 @@ resource_group_id,
 state, 
 volume, 
 worker
+
+
+Worker Pool
+-----------------
+
+Supported parameters include: 
+cluster, 
+crk, 
+entitlement, 
+flavor, 
+host_pool_id, 
+ibmcloud_api_key, 
+id, kms_account_id, 
+kms_instance_id, 
+labels, 
+operating_system, 
+resource_group_id, 
+secondary_storage, 
+state, 
+taints, 
+vpc_id, 
+worker_count, 
+worker_pool_name, 
+zones.
+

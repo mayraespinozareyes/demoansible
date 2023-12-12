@@ -3,69 +3,110 @@
   hosts: localhost
   vars_files:
     - vars/external_vars.yml
-  collections:
-    - ibm.cloudcollection
   tasks:
     - name: Create resource group
       ibm.cloudcollection.ibm_resource_group:
         ibmcloud_api_key: "{{ ibmcloud_api_key }}"
         name: "{{ resource_group_name }}"
       register: result_rg
-    - name: Create cos bucket
+    - name: Create cos instance
       ibm.cloudcollection.ibm_resource_instance:
         ibmcloud_api_key: "{{ ibmcloud_api_key }}"
         name: "{{ bucket_name }}"
         service: "{{ service }}"
         location: "{{ location }}"
         plan: "{{ plan }}"
+        tags:
+          - cp4i
+        resource_group_id: "{{ result_rg.resource.id }}"
       register: result_cos
-    - name: Print Test
-      ansible.builtin.debug:
-        msg: "{{ result_cos }}"
-#    - name: Create VPC
-#      ibm.cloudcollection.ibm_is_vpc:
-#        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
-#        name: "{{ vpc_name }}"
-#        resource_group: "{{ resource_group_name }}"
+    - name: Create VPC
+      ibm.cloudcollection.ibm_is_vpc:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        name: "{{ vpc_name }}"
+        resource_group: "{{ result_rg.resource.id }}"
+        region: "{{ region }}"
 #      when: result_rg.rc == "0"
-#      register: result_vpc
-#    - name: Create SubNet
-#      ibm.cloudcollection.ibm_is_subnet:
-#        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
-#        name: "{{ subnet_name }}"
-#        resource_group: "{{ resource_group_name }}"
-#      when: result_rg | success
-#      register: result_subnet
-#    - name: Create container vpc cluster
-#      ibm.cloudcollection.ibm_container_vpc_cluster:
-#        name: "{{ cluster_name }}"
-#        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
-#        flavor: "{{ flavor }}"
-#        vpc_id: "{{ vpc_id }}"
-#        zones:
-#          - subnet_id: "{{ subnet_id }}"
-#            name: "{{ zone_name }}"
-#        entitlement: "{{ entitlement }}"
-#        kube_version: "{{ kube_version }}"
-#        worker_count: "{{ worker_count }}"
-#        cos_instance_crn: "{{ cos_instance_crn }}"
-#        resource_group_id: "{{ resource_group_name }}"
-#      register: result_roks
-
-#    - name: Create worker pool
-#      ibm.cloudcollection.ibm_container_vpc_worker_pool:
-#        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
-#        worker_pool_name: ""
-#    - name: Create Workers ODF
-#      ibm.cloudcollection.ibm_container_vpc_worker:
-#        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+      register: result_vpc
+    - name: Print result_vpc
+      ansible.builtin.debug:
+        var: result_vpc
+    - name: Create public gateway
+      ibm.cloudcollection.ibm_is_public_gateway:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        name: "{{ public_gateway_name }}"
+        vpc: "{{ result_vpc.resource.id }}"
+        region: "{{ region }}"
+        zone: "{{ zone_name }}"
+        resource_group: "{{ result_rg.resource.id }}"
+      register: result_public_gateway
+    - name: Create SubNet
+      ibm.cloudcollection.ibm_is_subnet:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        name: "{{ subnet_name }}"
+        resource_group: "{{ result_rg.resource.id }}"
+        vpc: "{{ result_vpc.resource.id }}"
+        zone: "{{ zone_name }}"
+        ipv4_cidr_block: "{{ ipv4_cidr_block }}"
+        routing_table: "{{ result_vpc.resource.default_routing_table }}"
+        public_gateway: "{{ result_public_gateway.resource.id }}"
+        region: "{{ region }}"
+      register: result_subnet
+    - name: Create container vpc cluster
+      ibm.cloudcollection.ibm_container_vpc_cluster:
+        name: "{{ cluster_name }}"
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        flavor: "{{ flavor }}"
+        vpc_id: "{{ result_vpc.resource.id }}"
+        zones:
+          - subnet_id: "{{ result_subnet.resource.id }}"
+            name: "{{ zone_name }}"
+        entitlement: "{{ entitlement }}"
+        kube_version: "{{ kube_version }}"
+        worker_count: "{{ worker_count }}"
+        cos_instance_crn: "{{ result_cos.resource.crn }}"
+        resource_group_id: "{{ result_rg.resource.id }}"
+      register: result_roks
+    - name: Print result_roks
+      ansible.builtin.debug:
+        var: result_roks
+    - name: Create worker pool
+      ibm.cloudcollection.ibm_container_vpc_worker_pool:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        worker_pool_name: "{{ worker_pool_name }}"
+        worker_count: "{{ worker_count }}"
+        vpc_id: "{{ result_vpc.resource.id }}"
+        entitlement: "{{ entitlement }}"
+        cluster: "{{ result_roks.resource.id }}"
+        flavor: "{{ flavor }}"
+        zones:
+          - subnet_id: "{{ result_subnet.resource.id }}"
+            name: "{{ zone_name }}"
+        resource_group_id: "{{ result_rg.resource.id }}"
+      register: result_wp
+    - name: Print result_wp
+      ansible.builtin.debug:
+        var: result_wp
 ## Voler dinamico
-#    - name: Create volumen for ODF
-#      ibm.cloudcollection.ibm_is_volume:
-#        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
-#        zone: "{{ zone_name }}"
-#        name: "{{ volumen_name }}"
-#        resource_group: "{{ resource_group_name }}"
-#    - name: Attach Storage
-#      ibm.cloudcollection.ibm_container_storage_attachment:
-#        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+    - name: Create volume for ODF
+      ibm.cloudcollection.ibm_is_volume:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        zone: "{{ zone_name }}"
+        name: "{{ volumen_name }}"
+        resource_group: "{{ result_rg.resource.id }}"
+        capacity: "{{ capacity }}"
+        profile: "{{ profile }}"
+        iops: "{{ iops }}"
+      register: result_vol
+    - name: Attach Storage
+      ibm.cloudcollection.ibm_container_storage_attachment:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        cluster: "{{ result_roks.resource.id }}"
+        resource_group_id: "{{ result_rg.resource.id }}"
+        volume: "{{ result_vol.resource.id }}"
+        worker: "{{ result_roks.resource.workers[0] }}"
+      register: result_attach
+    - name: Print result_attach
+      ansible.builtin.debug:
+        var: result_attach
+
