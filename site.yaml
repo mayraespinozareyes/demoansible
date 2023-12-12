@@ -26,7 +26,7 @@
         name: "{{ vpc_name }}"
         resource_group: "{{ result_rg.resource.id }}"
         region: "{{ region }}"
-#      when: result_rg.rc == "0"
+    # when: result_rg.rc == "0"
       register: result_vpc
     - name: Print result_vpc
       ansible.builtin.debug:
@@ -87,7 +87,7 @@
     - name: Print result_wp
       ansible.builtin.debug:
         var: result_wp
-## Voler dinamico
+    # Voler dinamico
     - name: Create volume for ODF
       ibm.cloudcollection.ibm_is_volume:
         ibmcloud_api_key: "{{ ibmcloud_api_key }}"
