@@ -9,6 +9,26 @@
         ibmcloud_api_key: "{{ ibmcloud_api_key }}"
         name: "{{ resource_group_name }}"
       register: rg_info
+    - name: Get info VPC
+      ibm.cloudcollection.ibm_is_vpc_info:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        name: "{{ vpc_name }}"
+        region: "{{ region }}"
+      register: vpc_info
+    - name: Get info ibm container vpc cluster
+      ibm.cloudcollection.ibm_container_vpc_cluster_info:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        name: "{{ cluster_name }}"
+        resource_group_id: "{{ rg_info.resource.id }}"
+      register: cluster_info
+    - name: Destroy ibm container vpc cluster
+      ibm.cloudcollection.ibm_container_vpc_cluster:
+        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
+        id: "{{ cluster_info.resource.id }}"
+        zones:
+          - subnet_id: "{{ vpc_info.resource.subnets[0].id }}"
+            name: "{{ zone_name }}"
+        state: absent
     - name: Check resource instance exists
       ibm.cloudcollection.ibm_resource_instance_info:
         ibmcloud_api_key: "{{ ibmcloud_api_key }}"
@@ -48,15 +68,10 @@
         region: "{{ region }}"
         resource_group: "{{ rg_info.resource.id }}"
         state: absent
-    - name: Get info VPC
-      ibm.cloudcollection.ibm_is_vpc_info:
-        ibmcloud_api_key: "{{ ibmcloud_api_key }}"
-        name: "{{ vpc_name }}"
-        region: "{{ region }}"
-      register: vpc_info
     - name: Destroy VPC
       ibm.cloudcollection.ibm_is_vpc:
         ibmcloud_api_key: "{{ ibmcloud_api_key }}"
         id: "{{ vpc_info.resource.id }}"
         region: "{{ region }}"
         state: absent
+    # Falta eliminar Storage
